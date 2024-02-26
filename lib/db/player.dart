@@ -1,14 +1,14 @@
-final String tablePlayers = 'players';
+const String tablePlayers = 'players';
 
 class PlayerFields {
   static final List<String> values = [
     id, name, wins, losses
   ];
 
-  static final String id = '_id';
-  static final String name = 'name';
-  static final String wins = 'wins';
-  static final String losses = 'losses';
+  static const String id = '_id';
+  static const String name = 'name';
+  static const String wins = 'wins';
+  static const String losses = 'losses';
 }
 
 class Player {
