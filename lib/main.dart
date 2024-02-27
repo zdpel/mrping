@@ -48,6 +48,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late List<Player> players = [];
+  int nextID = 1;
   
   @override
   void initState(){
@@ -55,14 +56,16 @@ class _MyHomePageState extends State<MyHomePage> {
     refreshPlayers();
   }
   void addPlayer() async {
-    Player newPlayer = Player(id: 1, name: "bob", wins: 3, losses: 1);
+    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2);
+    nextID++;
     await mainDB.instance.create(newPlayer);
     await refreshPlayers();
     setState(() {});
   }
 
   void deletePlayer() async {
-    await mainDB.instance.delete(1);
+    await mainDB.instance.delete(nextID-1);
+    nextID--;
     await refreshPlayers();
     setState(() {}); 
   }
@@ -87,9 +90,17 @@ class _MyHomePageState extends State<MyHomePage> {
               'Players:',
             ),
             if (players.isNotEmpty)
-              Text(
-                players[0].name ?? "No db entry available",
-                style: Theme.of(context).textTheme.headlineMedium,
+              Expanded(
+                child: ListView.builder(
+                  itemCount: players.length,
+                  itemBuilder: (context, index){
+                    return Text(
+                      'ID:${players[index].id}   NAME: ${players[index].name ?? "No db entry"}',
+                      // players[index].name ?? "No db entry",
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    );
+                  }
+                ),
               ),
             if (players.isEmpty)
               Text(
