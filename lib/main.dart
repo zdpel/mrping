@@ -14,21 +14,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -110,28 +95,47 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: Column(
-        // Column to display multiple floating action buttons
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: addPlayer,
-            tooltip: 'Add Player',
-            child: const Icon(Icons.add),
-          ), 
-          FloatingActionButton(
-            onPressed: refreshPlayers,
-            tooltip: 'Refresh Players',
-            child: const Icon(Icons.refresh),
+      // floatingActionButton: Column(
+      //   // Column to display multiple floating action buttons
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   crossAxisAlignment: CrossAxisAlignment.end,
+      //   children: [
+      //     FloatingActionButton(
+      //       onPressed: addPlayer,
+      //       tooltip: 'Add Player',
+      //       child: const Icon(Icons.add),
+      //     ), 
+      //     FloatingActionButton(
+      //       onPressed: refreshPlayers,
+      //       tooltip: 'Refresh Players',
+      //       child: const Icon(Icons.refresh),
+      //     ),
+      //     FloatingActionButton(
+      //       onPressed: deletePlayer,
+      //       tooltip: 'Delete Players',
+      //       child: const Icon(Icons.delete),
+      //     ),
+      //   ],
+      // ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
           ),
-          FloatingActionButton(
-            onPressed: deletePlayer,
-            tooltip: 'Delete Players',
-            child: const Icon(Icons.delete),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search_rounded),
+            label: 'Search Players',
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {},
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterDocked,
     );
   }
 }
