@@ -42,7 +42,8 @@ class mainDB{
       ${PlayerFields.id} $idType,
       ${PlayerFields.name} $textType,
       ${PlayerFields.wins} $integerType,
-      ${PlayerFields.losses} $integerType
+      ${PlayerFields.losses} $integerType,
+      ${PlayerFields.rating} $integerType
     )''');
   }
 
