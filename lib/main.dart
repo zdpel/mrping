@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     refreshPlayers();
   }
   void addPlayer() async {
-    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2);
+    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 500);
     nextID++;
     await mainDB.instance.create(newPlayer);
     await refreshPlayers();
@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemCount: players.length,
                   itemBuilder: (context, index){
                     return Text(
-                      'ID:${players[index].id}   NAME: ${players[index].name ?? "No db entry"}',
+                      'ID ${players[index].id} NAME ${players[index].name} RATING ${players[index].rating}',
                       // players[index].name ?? "No db entry",
                       style: Theme.of(context).textTheme.headlineMedium,
                     );
