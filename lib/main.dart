@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     refreshPlayers();
   }
   void addPlayer() async {
-    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 500);
+    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 700);
     nextID++;
     await mainDB.instance.create(newPlayer);
     await refreshPlayers();
@@ -57,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future refreshPlayers() async {
     players = await mainDB.instance.readAllPlayerInfo();
+    players.sort((a,b) => b.rating!.compareTo(a.rating as num));
     setState(() {}); 
   }
 
@@ -64,25 +65,52 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.outline,
         title: Text(widget.title),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Players:',
+            const ListTile(
+              leading: Text("Rank", style: TextStyle(fontSize: 15.0)),
+              title: Padding(
+                padding: EdgeInsets.only(left: 15.0),
+                child: Text(
+                  "Name",
+                  style: TextStyle(fontSize: 15.0),
+                )
+              ),
+              trailing: Text("Rating", style: TextStyle(fontSize: 15.0))
             ),
             if (players.isNotEmpty)
               Expanded(
                 child: ListView.builder(
+                  shrinkWrap: true,
                   itemCount: players.length,
                   itemBuilder: (context, index){
-                    return Text(
-                      'ID ${players[index].id} NAME ${players[index].name} RATING ${players[index].rating}',
-                      // players[index].name ?? "No db entry",
-                      style: Theme.of(context).textTheme.headlineMedium,
+                    return Card(
+                      child: ListTile(
+                        leading: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            //ID ${players[index].id}
+                            '${index+1}',
+                            style: const TextStyle(fontSize: 20.0),
+                          ),
+                        ),
+                        title: Padding(
+                          padding: const EdgeInsets.only(left: 25.0),
+                          child: Text(
+                            '${players[index].name}',
+                            style: const TextStyle(fontSize: 20.0),
+                          )
+                        ),
+                        trailing: Text(
+                          '${players[index].rating}',
+                          style: const TextStyle(fontSize: 20.0),
+                        ),
+                      )
+                      
                     );
                   }
                 ),
@@ -95,28 +123,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      // floatingActionButton: Column(
-      //   // Column to display multiple floating action buttons
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   crossAxisAlignment: CrossAxisAlignment.end,
-      //   children: [
-      //     FloatingActionButton(
-      //       onPressed: addPlayer,
-      //       tooltip: 'Add Player',
-      //       child: const Icon(Icons.add),
-      //     ), 
-      //     FloatingActionButton(
-      //       onPressed: refreshPlayers,
-      //       tooltip: 'Refresh Players',
-      //       child: const Icon(Icons.refresh),
-      //     ),
-      //     FloatingActionButton(
-      //       onPressed: deletePlayer,
-      //       tooltip: 'Delete Players',
-      //       child: const Icon(Icons.delete),
-      //     ),
-      //   ],
-      // ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
