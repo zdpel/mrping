@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/screens/settings.dart';
 import './db/mainDB.dart';
 import './db/player.dart';
+import 'screens/dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,6 +36,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late List<Player> players = [];
   int nextID = 1;
+  int myIndex = 0;
+  List<Widget> widgetList = const [
+    Dashboard(),
+    Settings(),
+  ];
   
   @override
   void initState(){
@@ -64,67 +71,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: IndexedStack(
+        index: myIndex,
+        children: widgetList,
+      ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.outline,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            const ListTile(
-              leading: Text("Rank", style: TextStyle(fontSize: 15.0)),
-              title: Padding(
-                padding: EdgeInsets.only(left: 15.0),
-                child: Text(
-                  "Name",
-                  style: TextStyle(fontSize: 15.0),
-                )
-              ),
-              trailing: Text("Rating", style: TextStyle(fontSize: 15.0))
-            ),
-            if (players.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: players.length,
-                  itemBuilder: (context, index){
-                    return Card(
-                      child: ListTile(
-                        leading: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            //ID ${players[index].id}
-                            '${index+1}',
-                            style: const TextStyle(fontSize: 20.0),
-                          ),
-                        ),
-                        title: Padding(
-                          padding: const EdgeInsets.only(left: 25.0),
-                          child: Text(
-                            '${players[index].name}',
-                            style: const TextStyle(fontSize: 20.0),
-                          )
-                        ),
-                        trailing: Text(
-                          '${players[index].rating}',
-                          style: const TextStyle(fontSize: 20.0),
-                        ),
-                      )
-                      
-                    );
-                  }
-                ),
-              ),
-            if (players.isEmpty)
-              Text(
-                "No db entry available",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-          ],
-        ),
-      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          setState(() {
+            myIndex = index;
+          });
+        },
+        currentIndex: myIndex,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
