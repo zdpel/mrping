@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mrping/screens/settings.dart';
-import './db/mainDB.dart';
 import './db/player.dart';
 import 'screens/dashboard.dart';
 
@@ -42,32 +41,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Settings(),
   ];
   
-  @override
-  void initState(){
-    super.initState();
-    refreshPlayers();
-  }
-  void addPlayer() async {
-    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 700);
-    nextID++;
-    await mainDB.instance.create(newPlayer);
-    await refreshPlayers();
-    setState(() {});
-  }
-
-  void deletePlayer() async {
-    await mainDB.instance.delete(nextID);
-    nextID--;
-    await refreshPlayers();
-    setState(() {}); 
-  }
-
-  Future refreshPlayers() async {
-    players = await mainDB.instance.readAllPlayerInfo();
-    players.sort((a,b) => b.rating!.compareTo(a.rating as num));
-    setState(() {}); 
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

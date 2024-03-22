@@ -97,13 +97,12 @@ class mainDB{
     );
   }
 
-  Future<int> delete(int id) async {
+  Future<int> delete(String name) async {
     final db = await instance.database;
-
     return db.delete(
       tablePlayers,
-      where: '${PlayerFields.id} = ?',
-      whereArgs: [id],
+      where: '${PlayerFields.name} = ?',
+      whereArgs: [name],
     );
   }
 
