@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void deletePlayer() async {
-    await mainDB.instance.delete(nextID-1);
+    await mainDB.instance.delete(nextID);
     nextID--;
     await refreshPlayers();
     setState(() {}); 
@@ -71,9 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: myIndex,
-        children: widgetList,
+      body: Center(
+        child: widgetList[myIndex]
       ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.outline,
@@ -99,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (addPlayer),
+        onPressed: () {},
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation:
