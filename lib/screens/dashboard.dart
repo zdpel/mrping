@@ -20,21 +20,6 @@ class _MyWidgetState extends State<Dashboard> {
     refreshPlayers();
   }
 
-  void addPlayer() async {
-    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 700);
-    nextID++;
-    await mainDB.instance.create(newPlayer);
-    await refreshPlayers();
-    setState(() {});
-  }
-
-  void deletePlayer() async {
-    await mainDB.instance.delete(nextID-1);
-    nextID--;
-    await refreshPlayers();
-    setState(() {}); 
-  }
-
   Future refreshPlayers() async {
     players = await mainDB.instance.readAllPlayerInfo();
     players.sort((a,b) => b.rating!.compareTo(a.rating as num));
