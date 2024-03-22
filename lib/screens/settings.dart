@@ -8,34 +8,31 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.only(left: 10,top: 10),
-        child: ButtonBar(
-          children: [
-            OutlinedButton(
-              onPressed : () {
-                showDialog(
-                  context: context,
-                  builder: (context){
-                    return AddPlayer();
-                  }
-                );
-              },
-              child: const Text("Add Player"),
-            ),
-            OutlinedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context){
-                    return DeletePlayer();
-                  }
-                );
-              },
-              child: const Text("Delete Player"),
-            )
-          ],
-        ),
+      body: ListView(
+        children: [
+          OutlinedButton(
+            onPressed : () {
+              showDialog(
+                context: context,
+                builder: (context){
+                  return AddPlayer();
+                }
+              );
+            },
+            child: const Text("Add Player"),
+          ),
+          OutlinedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context){
+                  return DeletePlayer();
+                }
+              );
+            },
+            child: const Text("Delete Player"),
+          )
+        ],
       ),
     );
   }
