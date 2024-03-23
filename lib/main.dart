@@ -50,13 +50,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void addPlayer() async {
     Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 700);
     nextID++;
-    await mainDB.instance.create(newPlayer);
+    await mainDB.instance.createPlayer(newPlayer);
     await refreshPlayers();
     setState(() {});
   }
 
   void deletePlayer() async {
-    await mainDB.instance.delete(nextID);
+    await mainDB.instance.deletePlayer(nextID);
     nextID--;
     await refreshPlayers();
     setState(() {}); 

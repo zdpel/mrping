@@ -1,9 +1,11 @@
+const String tableGames = 'games';
+
 class GameFields {
-  static final List<String> stringValues = [
+  static final List<String> values = [
     id, playerOne, playerTwo, playerOneScore, playerTwoScore
   ];
 
-  static const String id = '0';
+  static const String id = '_id';
   static const String playerOne = 'playerOne';
   static const String playerTwo = 'playerTwo';
   static const String playerOneScore = '0';
