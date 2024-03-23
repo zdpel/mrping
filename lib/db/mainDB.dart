@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_declarations
+// ignore_for_file: prefer_const_declarations, camel_case_types, file_names
 
 import 'dart:async';
 
