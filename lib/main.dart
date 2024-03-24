@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mrping/screens/settings.dart';
 import './db/player.dart';
+import 'screens/addgame.dart';
 import 'screens/dashboard.dart';
 
 void main() {
@@ -71,7 +72,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context, 
+            builder: (context){
+              return AddGame();
+            }
+          );
+        },
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation:
