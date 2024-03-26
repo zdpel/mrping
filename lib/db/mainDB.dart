@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_declarations
+// ignore_for_file: prefer_const_declarations, camel_case_types, file_names
 
 import 'dart:async';
 
@@ -153,14 +153,12 @@ class mainDB{
     );
   }
 
-  // delete player info
-  Future<int> deletePlayer(int id) async {
+  Future<int> deletePlayer(String name) async {
     final db = await instance.database;
-
     return db.delete(
       tablePlayers,
-      where: '${PlayerFields.id} = ?',
-      whereArgs: [id],
+      where: '${PlayerFields.name} = ?',
+      whereArgs: [name],
     );
   }
 

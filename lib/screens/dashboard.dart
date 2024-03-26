@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/screens/playerstatspage.dart';
 import '../db/mainDB.dart';
 import '../db/player.dart';
 
@@ -18,21 +19,6 @@ class _MyWidgetState extends State<Dashboard> {
   void initState(){
     super.initState();
     refreshPlayers();
-  }
-
-  void addPlayer() async {
-    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 700);
-    nextID++;
-    await mainDB.instance.create(newPlayer);
-    await refreshPlayers();
-    setState(() {});
-  }
-
-  void deletePlayer() async {
-    await mainDB.instance.delete(nextID-1);
-    nextID--;
-    await refreshPlayers();
-    setState(() {}); 
   }
 
   Future refreshPlayers() async {
@@ -64,29 +50,40 @@ class _MyWidgetState extends State<Dashboard> {
                   shrinkWrap: true,
                   itemCount: players.length,
                   itemBuilder: (context, index){
-                    return Card(
-                      child: ListTile(
-                        leading: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            //ID ${players[index].id}
-                            '${index+1}',
+                    return GestureDetector(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                              PlayerStatsPage(player: players[index]),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        child: ListTile(
+                          leading: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(
+                              //ID ${players[index].id}
+                              '${index+1}',
+                              style: const TextStyle(fontSize: 20.0),
+                            ),
+                          ),
+                          title: Padding(
+                            padding: const EdgeInsets.only(left: 25.0),
+                            child: Text(
+                              '${players[index].name}',
+                              style: const TextStyle(fontSize: 20.0),
+                            )
+                          ),
+                          trailing: Text(
+                            '${players[index].rating}',
                             style: const TextStyle(fontSize: 20.0),
                           ),
-                        ),
-                        title: Padding(
-                          padding: const EdgeInsets.only(left: 25.0),
-                          child: Text(
-                            '${players[index].name}',
-                            style: const TextStyle(fontSize: 20.0),
-                          )
-                        ),
-                        trailing: Text(
-                          '${players[index].rating}',
-                          style: const TextStyle(fontSize: 20.0),
-                        ),
-                      )
-                      
+                        )
+                        
+                      ),
                     );
                   }
                 ),
