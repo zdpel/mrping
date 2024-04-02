@@ -49,7 +49,7 @@ class AddPlayer extends StatelessWidget {
     void addPlayer(String name, int rating) async {
       //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING
       Player newPlayer = Player(name: name, wins: 2, losses: 2, rating: rating);
-      await mainDB.instance.create(newPlayer);
+      await mainDB.instance.createPlayer(newPlayer);
     }
     return AlertDialog(
       title: const Text('Enter Player Details'),
@@ -98,7 +98,7 @@ class DeletePlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void deletePlayer(String name) async {
-      await mainDB.instance.delete(name);
+      await mainDB.instance.deletePlayer(name);
     }
     return AlertDialog(
       title: const Text('Enter Player Details'),
