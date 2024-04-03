@@ -8,8 +8,8 @@ class GameFields {
   static const String id = '_id';
   static const String playerOne = 'playerOne';
   static const String playerTwo = 'playerTwo';
-  static const String playerOneScore = '0';
-  static const String playerTwoScore = '0';
+  static const String playerOneScore = 'playerOneScore';
+  static const String playerTwoScore = 'playerTwoScore';
 }
 
 class Game {
