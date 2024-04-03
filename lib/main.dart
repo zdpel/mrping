@@ -75,10 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: widgetList[myIndex]
       ),
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.outline,
-        title: Text(widget.title),
-      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
