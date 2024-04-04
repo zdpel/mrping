@@ -63,20 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     refreshPlayers();
   }
-  void addPlayer() async {
-    Player newPlayer = Player(id: nextID, name: "john", wins: 2, losses: 2, rating: 700);
-    nextID++;
-    await mainDB.instance.createPlayer(newPlayer);
-    await refreshPlayers();
-    setState(() {});
-  }
-
-  void deletePlayer() async {
-    await mainDB.instance.deletePlayer(nextID.toString());
-    nextID--;
-    await refreshPlayers();
-    setState(() {}); 
-  }
 
   Future refreshPlayers() async {
     players = await mainDB.instance.readAllPlayerInfo();
