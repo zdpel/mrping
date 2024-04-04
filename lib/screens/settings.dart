@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/main.dart';
 import '../db/mainDB.dart';
 import '../db/player.dart';
 
@@ -11,31 +12,48 @@ class Settings extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Settings"),
       ),
-      body: ListView(
-        children: [
-          OutlinedButton(
-            onPressed : () {
-              showDialog(
-                context: context,
-                builder: (context){
-                  return AddPlayer();
-                }
-              );
-            },
-            child: const Text("Add Player"),
-          ),
-          OutlinedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context){
-                  return DeletePlayer();
-                }
-              );
-            },
-            child: const Text("Delete Player"),
-          )
-        ],
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 8.0),
+        child: ListView(
+          children: [
+            const ListTile(
+              title: Text("Player Options"),
+            ),
+            ElevatedButton(
+              onPressed : () {
+                showDialog(
+                  context: context,
+                  builder: (context){
+                    return AddPlayer();
+                  }
+                );
+              },
+              child: const Text("Add Player"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context){
+                    return DeletePlayer();
+                  }
+                );
+              },
+              child: const Text("Delete Player"),
+            ),
+            const ListTile(
+              title: Text("Theme Options"),
+            ),
+            ElevatedButton(
+              onPressed: () => MyApp.of(context).changeTheme(ThemeMode.dark),
+              child: const Text('Dark'),
+            ),
+            ElevatedButton(
+              onPressed: () => MyApp.of(context).changeTheme(ThemeMode.light),
+              child: const Text('Light'),
+            ),
+          ],
+        ),
       ),
     );
   }
