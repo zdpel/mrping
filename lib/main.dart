@@ -9,19 +9,34 @@ void main() {
   runApp(const MyApp());
 }
 //test
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
-  // This widget is the root of your application.
+
   @override
-  Widget build(BuildContext context) {
+  State<MyApp> createState() => _MyAppState();
+
+  static _MyAppState of(BuildContext context) =>
+    context.findAncestorStateOfType<_MyAppState>()!;
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+    Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      title: 'Mr. Ping',
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(),
+      themeMode: _themeMode,
       home: const MyHomePage(title: 'Mr. Ping'),
     );
+  }
+
+  void changeTheme(ThemeMode themeMode){
+    setState(() {
+      _themeMode = themeMode;
+    });
   }
 }
 
