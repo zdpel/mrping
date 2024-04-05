@@ -8,6 +8,8 @@ class AddGame extends StatelessWidget {
   final TextEditingController _playerTwoController = TextEditingController();
   final TextEditingController _playerOneScoreController = TextEditingController();
   final TextEditingController _playerTwoScoreController = TextEditingController();
+  int gameIndex = 0;
+
   AddGame({super.key});
 
   @override
@@ -36,7 +38,7 @@ class AddGame extends StatelessWidget {
 
     Future<bool> addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
       if(validGameScore(playerOneScore, playerTwoScore)) {
-        Game newGame = Game(id: 0, playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
+        Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
         await mainDB.instance.createGame(newGame);
 
         return true;
@@ -80,19 +82,13 @@ class AddGame extends StatelessWidget {
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            // Add game functionality
             String playerOne = _playerOneController.text;
             int playerOneScore = int.tryParse(_playerOneScoreController.text) ?? 0;
             String playerTwo = _playerTwoController.text;
             int playerTwoScore = int.tryParse(_playerTwoScoreController.text) ?? 0;
 
-            Future<bool> validGame = addGame(playerOne, playerOneScore, playerTwo, playerTwoScore);
-
-            validGame.then((bool validGame) {
-              if (validGame) {
-                Navigator.of(context).pop();
-              }
-            });
+            addGame(playerOne, playerOneScore, playerTwo, playerTwoScore);
+            Navigator.of(context).pop();
           },
           child: const Text('Add'),
         ),

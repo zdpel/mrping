@@ -22,7 +22,7 @@ class mainDB{
     if (_database != null) return _database!;
 
     //if database does not exist, initialize db
-    _database = await _initDB('players.db');
+    _database = await _initDB('appdatabase.db');
     return _database!;
   }
 
