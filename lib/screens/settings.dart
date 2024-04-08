@@ -60,10 +60,36 @@ class Settings extends StatelessWidget {
 }
 
 //Add Player Pop-up
-class AddPlayer extends StatelessWidget {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _ratingController = TextEditingController();
+class AddPlayer extends StatefulWidget {
+
   AddPlayer({super.key});
+
+  @override
+  State<AddPlayer> createState() => _AddPlayerState();
+}
+
+class _AddPlayerState extends State<AddPlayer> {
+  final TextEditingController _firstnameController = TextEditingController();
+
+  final TextEditingController _lastnameController = TextEditingController();
+
+  final TextEditingController _ratingController = TextEditingController();
+
+  late List<Player> players = [];
+
+  bool firstNameEmpty = false;
+  bool lastNameEmpty = false;
+  bool nameExists = false;
+
+  Future<bool> checkPlayers(String name) async {
+    players = await mainDB.instance.readAllPlayerInfo();
+    for(var player in players){
+      if(player.name == name){
+        return true;
+      }
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,10 +102,14 @@ class AddPlayer extends StatelessWidget {
       title: const Text('Enter Player Details'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
+        children: [
           TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Name'),
+            controller: _firstnameController,
+            decoration: const InputDecoration(labelText: 'First Name'),
+          ),
+          TextField(
+            controller: _lastnameController,
+            decoration: InputDecoration(labelText: 'Last Name', errorText: lastNameEmpty ? "Values can't be empty" : nameExists ? "Name already exists" : null),
           ),
           //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING. REMOVE LATER
           TextField(
@@ -91,12 +121,31 @@ class AddPlayer extends StatelessWidget {
       ),
       actions: <Widget>[
         ElevatedButton(
-          onPressed: () {
-            String name = _nameController.text;
+          onPressed: () async {
+            bool containsName = false;
+            String name = "${_firstnameController.text} ${_lastnameController.text}";
             int rating = int.tryParse(_ratingController.text) ?? 0;
+            containsName = await checkPlayers(name);
 
-            addPlayer(name, rating);
-            Navigator.of(context).pop();
+            if(_firstnameController.text.isEmpty){
+              setState(() {
+                firstNameEmpty = true;
+              });
+            }
+            else if(_lastnameController.text.isEmpty){
+              setState(() {
+                lastNameEmpty = true;
+              });
+            }
+            else if(containsName){
+              setState(() {
+                nameExists = true;
+              });
+            }
+            else {
+              addPlayer(name, rating);
+              Navigator.of(context).pop();
+            }
           },
           child: const Text('Add'),
         ),
