@@ -113,31 +113,71 @@ class AddPlayer extends StatelessWidget {
 
 //Delete Player Pop-up
 class DeletePlayer extends StatelessWidget {
-  final TextEditingController _nameController = TextEditingController();
+  late List<String> autoCompleteData = [];
+  String deletedPlayer = '';
   DeletePlayer({super.key});
+
+  void fetchAutoCompleteData() async {
+    final players = await mainDB.instance.readAllPlayerInfo();
+    autoCompleteData = players.where((player) => player.name != null).map((player) => player.name!).toList();
+  }
+
+  bool validName(String name) {
+    int count = autoCompleteData.where((element) => element == name).length;
+    return count == 1;
+  }
+
+  void deletePlayer(String name) async {
+    await mainDB.instance.deletePlayer(name);
+  }
 
   @override
   Widget build(BuildContext context) {
-    void deletePlayer(String name) async {
-      await mainDB.instance.deletePlayer(name);
-    }
+    fetchAutoCompleteData();
+
     return AlertDialog(
       title: const Text('Enter Player Details'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Name'),
+
+          Autocomplete(
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return const Iterable<String>.empty();
+              } else {
+                return autoCompleteData.where((word) => word
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()));
+              }
+            },
+            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+              return TextField(
+                controller: controller,
+                focusNode: focusNode,
+                onEditingComplete: onEditingComplete,
+                onChanged: (value) {
+                  deletedPlayer = value;
+                },
+                decoration: const InputDecoration(
+                  hintText: "Player",
+                ),
+              );
+            },
+            onSelected: (String selection) {
+              deletedPlayer = selection;
+            },
           ),
         ],
       ),
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            String name = _nameController.text;
-            deletePlayer(name);
-            Navigator.of(context).pop();
+            // String name = _nameController.text;
+            if(validName(deletedPlayer)) {
+              deletePlayer(deletedPlayer);
+              Navigator.of(context).pop();
+            }
           },
           child: const Text('Delete'),
         ),

@@ -1,94 +1,185 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../db/game.dart';
 import '../db/mainDB.dart';
+import '../db/game.dart';
 
-class AddGame extends StatelessWidget {
-  final TextEditingController _playerOneController = TextEditingController();
-  final TextEditingController _playerTwoController = TextEditingController();
-  final TextEditingController _playerOneScoreController = TextEditingController();
-  final TextEditingController _playerTwoScoreController = TextEditingController();
-  int gameIndex = 0;
-
-  AddGame({super.key});
+class AddGame extends StatefulWidget {
+  const AddGame({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    bool validGameScore(int one, int two) {
-      // skunk scores are 7-0 and 11-1
+  State<AddGame> createState() => _AddGameState();
+}
 
-      if(one < 0 || two < 0) {
-        return false;
-      }
+class _AddGameState extends State<AddGame> {
+  final TextEditingController _playerOneScoreController = TextEditingController();
+  final TextEditingController _playerTwoScoreController = TextEditingController();
 
-      if((one > 21 || two > 21) && ((one - two).abs() != 2)) {
-        return false;
-      }
+  bool isLoading = false;
+  String playerOne = '';
+  String playerTwo = '';
 
-      if((one == 7 && two == 0) || (one == 0 && two == 7)) {
-        return true;
-      }
+  late List<String> autoCompleteData = [];
+  
+  @override
+  void initState(){
+    super.initState();
+    fetchAutoCompleteData();
+  }
 
-      if((one == 11 && two == 1) || (one == 1 && two == 11)) {
-        return true;
-      }
+  Future fetchAutoCompleteData() async {
+    setState(() {
+      isLoading = true;
+    });
 
+    final players = await mainDB.instance.readAllPlayerInfo();
+    
+    setState(() {
+      isLoading = false;
+      autoCompleteData = players.where((player) => player.name != null).map((player) => player.name!).toList();
+    });
+  }
+
+  bool validNames(String one, String two) {
+    int countOne = autoCompleteData.where((element) => element == one).length;
+    int countTwo = autoCompleteData.where((element) => element == two).length;
+
+    return countOne == 1 && countTwo == 1;
+  }
+
+  bool validGameScore(int one, int two) {
+    // skunk scores are 7-0 and 11-1
+    if((one == 7 && two == 0) || (one == 0 && two == 7)) {
+      return true;
+    } else if((one == 11 && two == 1) || (one == 1 && two == 11)) {
       return true;
     }
 
-    Future<bool> addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
-      if(validGameScore(playerOneScore, playerTwoScore)) {
-        Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
-        await mainDB.instance.createGame(newGame);
-
-        return true;
-      }
-
+    // if the game is not a skunk, at least one person must reach at least 21
+    if(one < 21 && two < 21) {
       return false;
     }
 
+    // if either score is greater than 21, then the game went OT and must have a difference of 2 (win by 2)
+    if((one > 21 || two > 21) && ((one - two).abs() != 2)) {
+      return false;
+    }
+
+    // if either score is 21 or greater, they cannot be equal
+    if((one >= 21 || two >= 21) && (one == two)) {
+      return false;
+    }
+
+    // negative numbers should not be possible, but this handles it just in case
+    if(one < 0 || two < 0) {
+      return false;
+    }
+
+    // otherwise return true
+    return true;
+  }
+
+  void addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
+    Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
+    await mainDB.instance.createGame(newGame);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Enter Game Details'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          TextField(
-            controller: _playerOneController,
-            decoration: const InputDecoration(labelText: 'Player 1'),
+        children: [
+          Autocomplete(
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return const Iterable<String>.empty();
+              } else {
+                return autoCompleteData.where((word) => word
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()));
+              }
+            },
+            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+              return TextField(
+                controller: controller,
+                focusNode: focusNode,
+                onEditingComplete: onEditingComplete,
+                onChanged: (value) {
+                  playerOne = value;
+                },
+                decoration: const InputDecoration(
+                  hintText: "Player 1",
+                ),
+              );
+            },
+            onSelected: (String selection) {
+              playerOne = selection;
+            },
           ),
+
           TextField(
             controller: _playerOneScoreController,
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly
             ],
-            decoration: const InputDecoration(labelText: 'Player 1 Score'),
+            decoration: InputDecoration(
+              hintText: _playerOneScoreController.text.isEmpty ? 'Player 1 Score' : '',
+            ),
           ),
-          TextField(
-            controller: _playerTwoController,
-            decoration: const InputDecoration(labelText: 'Player 2'),
+
+          Autocomplete(
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return const Iterable<String>.empty();
+              } else {
+                return autoCompleteData.where((word) => word
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()));
+              }
+            },
+            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+              return TextField(
+                controller: controller,
+                focusNode: focusNode,
+                onEditingComplete: onEditingComplete,
+                onChanged: (value) {
+                  playerTwo = value;
+                },
+                decoration: const InputDecoration(
+                  hintText: "Player 2",
+                ),
+              );
+            },
+            onSelected: (String selection) {
+              playerTwo = selection;
+            },
           ),
-          //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING. REMOVE LATER
+
           TextField(
             controller: _playerTwoScoreController,
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly
             ],
-            decoration: const InputDecoration(labelText: 'Player 2 Score'),
+            decoration: InputDecoration(
+              hintText: _playerTwoScoreController.text.isEmpty ? 'Player 2 Score' : '',
+            ),
           ),
+
         ],
       ),
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            String playerOne = _playerOneController.text;
             int playerOneScore = int.tryParse(_playerOneScoreController.text) ?? 0;
-            String playerTwo = _playerTwoController.text;
             int playerTwoScore = int.tryParse(_playerTwoScoreController.text) ?? 0;
 
-            addGame(playerOne, playerOneScore, playerTwo, playerTwoScore);
-            Navigator.of(context).pop();
+            if(validGameScore(playerOneScore, playerTwoScore) && validNames(playerOne, playerTwo)) {
+              addGame(playerOne, playerOneScore, playerTwo, playerTwoScore);
+              Navigator.of(context).pop();
+            }
           },
           child: const Text('Add'),
         ),
