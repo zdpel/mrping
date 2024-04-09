@@ -3,48 +3,52 @@ import 'package:flutter/services.dart';
 import '../db/game.dart';
 import '../db/mainDB.dart';
 
-class AddGame extends StatelessWidget {
+class AddGame extends StatefulWidget {
+  const AddGame({super.key});
+
+  @override
+  State<AddGame> createState() => _AddGameState();
+}
+
+class _AddGameState extends State<AddGame> {
   final TextEditingController _playerOneController = TextEditingController();
   final TextEditingController _playerTwoController = TextEditingController();
   final TextEditingController _playerOneScoreController = TextEditingController();
   final TextEditingController _playerTwoScoreController = TextEditingController();
-  int gameIndex = 0;
 
-  AddGame({super.key});
+  int gameIndex = 0;
+  bool invalidScore = false;
+  String invalidScoreMessage = "Invalid Score";
 
   @override
   Widget build(BuildContext context) {
     bool validGameScore(int one, int two) {
-      // skunk scores are 7-0 and 11-1
-
-      if(one < 0 || two < 0) {
-        return false;
-      }
-
-      if((one > 21 || two > 21) && ((one - two).abs() != 2)) {
-        return false;
-      }
-
-      if((one == 7 && two == 0) || (one == 0 && two == 7)) {
+      //Normal game to 21
+      if((one == 21 && two < 21 && two >= 0) || (two == 21 && one < 21 && one >= 0)){
         return true;
       }
-
-      if((one == 11 && two == 1) || (one == 1 && two == 11)) {
+      //Game more than 21
+      else if((one > 21 || two > 21) && ((one - two).abs() == 2)) {
         return true;
       }
-
-      return true;
+      //Normal game to 11
+      if((one == 11 && two < 11 && two >= 0) || (two == 11 && one < 11 && one >= 0)){
+        return true;
+      }
+      //7-0 skunk
+      else if((one == 7 && two == 0) || (one == 0 && two == 7)) {
+        return true;
+      }
+      //11-1 skunk
+      else if((one == 11 && two == 1) || (one == 1 && two == 11)) {
+        return true;
+      }
+      return false;
     }
 
-    Future<bool> addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
-      if(validGameScore(playerOneScore, playerTwoScore)) {
+    void addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
         Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
         await mainDB.instance.createGame(newGame);
-
-        return true;
-      }
-
-      return false;
     }
 
     return AlertDialog(
@@ -52,31 +56,58 @@ class AddGame extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          TextField(
-            controller: _playerOneController,
-            decoration: const InputDecoration(labelText: 'Player 1'),
+          Row(
+            children: [
+              Flexible(
+                child: TextField(
+                  controller: _playerOneController,
+                  decoration: const InputDecoration(labelText: 'Player 1'),
+                ),
+              ),
+              const SizedBox(width: 20),
+              SizedBox(
+                width: 50,
+                child: TextField(
+                  controller: _playerOneScoreController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  decoration: const InputDecoration(labelText: 'Score'),
+                ),
+              ),
+            ]
           ),
-          TextField(
-            controller: _playerOneScoreController,
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            decoration: const InputDecoration(labelText: 'Player 1 Score'),
+          Row(
+            children: [
+              Flexible(
+                child: TextField(
+                  controller: _playerTwoController,
+                  decoration: const InputDecoration(labelText: 'Player 2'),
+                ),
+              ),
+              const SizedBox(width: 20),
+              SizedBox(
+                width: 50,
+                child: TextField(
+                  controller: _playerTwoScoreController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  decoration: const InputDecoration(labelText: 'Score'),
+                ),
+              ),
+            ]
           ),
-          TextField(
-            controller: _playerTwoController,
-            decoration: const InputDecoration(labelText: 'Player 2'),
-          ),
-          //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING. REMOVE LATER
-          TextField(
-            controller: _playerTwoScoreController,
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            decoration: const InputDecoration(labelText: 'Player 2 Score'),
-          ),
+          const SizedBox(height: 10),
+          Builder(builder: (context){
+            if(invalidScore){
+              return Text(invalidScoreMessage, style: const TextStyle(color: Colors.red));
+            } else{
+              return const Text("");
+            }
+          })
         ],
       ),
       actions: <Widget>[
@@ -87,8 +118,15 @@ class AddGame extends StatelessWidget {
             String playerTwo = _playerTwoController.text;
             int playerTwoScore = int.tryParse(_playerTwoScoreController.text) ?? 0;
 
-            addGame(playerOne, playerOneScore, playerTwo, playerTwoScore);
-            Navigator.of(context).pop();
+            if(validGameScore(playerOneScore, playerTwoScore)){
+              addGame(playerOne, playerOneScore, playerTwo, playerTwoScore);
+              Navigator.of(context).pop();
+            }
+            else {
+              setState(() {
+                invalidScore = true;
+              });
+            }
           },
           child: const Text('Add'),
         ),
