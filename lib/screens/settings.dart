@@ -139,6 +139,8 @@ class _AddPlayerState extends State<AddPlayer> {
             }
             else if(containsName){
               setState(() {
+                firstNameEmpty = false;
+                lastNameEmpty = false;
                 nameExists = true;
               });
             }
