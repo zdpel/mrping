@@ -80,6 +80,10 @@ class _AddGameState extends State<AddGame> {
   String? _validateScore() {
     // don't validate until both scores have been entered
     if(playerOneScore == null || playerTwoScore == null) {
+      setState(() {
+        (playerOneScore == null) ? playerOneScoreError = 'Enter a value.' : playerOneScoreError = null;
+        (playerTwoScore == null) ? playerTwoScoreError = 'Enter a value.' : playerTwoScoreError = null;
+      });
       return null;
     }
 
@@ -124,13 +128,9 @@ class _AddGameState extends State<AddGame> {
   }
 
   bool _validInput() {
-    bool validPlayerOneName = _validateName(playerOne) == null;
-    bool validPlayerTwoName = _validateName(playerTwo) == null;
-    bool validScores = _validateScore() == null;
-
-    return validPlayerOneName &&
-        validPlayerTwoName &&
-        validScores;
+    return _validateName(playerOne) == null &&
+        _validateName(playerTwo) == null &&
+        _validateScore() == null;
   }
 
   void _addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
