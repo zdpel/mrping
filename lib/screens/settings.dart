@@ -163,19 +163,57 @@ class _AddPlayerState extends State<AddPlayer> {
 }
 
 //Delete Player Pop-up
-class DeletePlayer extends StatelessWidget {
+class DeletePlayer extends StatefulWidget {
+  const DeletePlayer({super.key});
+
+  @override
+  State<DeletePlayer> createState() => _DeletePlayerState();
+}
+class _DeletePlayerState extends State<DeletePlayer> {
   late List<String> autoCompleteData = [];
   String deletedPlayer = '';
-  DeletePlayer({super.key});
+  String? errorText = null;
+  
+  @override
+  void initState(){
+    super.initState();
+    fetchAutoCompleteData();
+  }
 
   void fetchAutoCompleteData() async {
     final players = await mainDB.instance.readAllPlayerInfo();
     autoCompleteData = players.where((player) => player.name != null).map((player) => player.name!).toList();
   }
 
-  bool validName(String name) {
-    int count = autoCompleteData.where((element) => element == name).length;
-    return count == 1;
+  // Checks if a string contains only A-Z or a-z or the space character ' '
+  bool isValidString(String str) {
+    for(int i = 0; i < str.length; i++) {
+      String char = str[i];
+      int charCode = char.codeUnitAt(0);
+      
+      if(!((charCode >= 65 && charCode <= 90) || // uppercase letters (A-Z)
+            (charCode >= 97 && charCode <= 122) || // lowercase letters (a-z)
+            charCode == 32)) { // space character
+        return false;
+      }
+    }
+    return true;
+  }
+
+  String? _validateName(String value) {
+    if(value.isEmpty) {
+      return 'Enter a value.';
+    }
+
+    if(!isValidString(value)) {
+      return 'Only letters and spaces are allowed.';
+    }
+
+    if(autoCompleteData.where((element) => element == value).length != 1) {
+      return 'Name is not recognized.';
+    }
+
+    return null;
   }
 
   void deletePlayer(String name) async {
@@ -208,15 +246,22 @@ class DeletePlayer extends StatelessWidget {
                 focusNode: focusNode,
                 onEditingComplete: onEditingComplete,
                 onChanged: (value) {
-                  deletedPlayer = value;
+                  setState(() {
+                    deletedPlayer = value;
+                    errorText = _validateName(deletedPlayer);
+                  });
                 },
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Player",
+                  errorText: errorText,
                 ),
               );
             },
             onSelected: (String selection) {
-              deletedPlayer = selection;
+              setState(() {
+                deletedPlayer = selection;
+                errorText = null;
+              });
             },
           ),
         ],
@@ -224,8 +269,7 @@ class DeletePlayer extends StatelessWidget {
       actions: <Widget>[
         ElevatedButton(
           onPressed: () {
-            // String name = _nameController.text;
-            if(validName(deletedPlayer)) {
+            if(errorText == null) {
               deletePlayer(deletedPlayer);
               Navigator.of(context).pop();
             }
