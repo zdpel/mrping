@@ -166,126 +166,128 @@ class _AddGameState extends State<AddGame> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Enter Game Details'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Autocomplete(
-            optionsBuilder: (TextEditingValue textEditingValue) {
-              if (textEditingValue.text.isEmpty) {
-                return const Iterable<String>.empty();
-              } else {
-                return autoCompleteData.where((word) => word
-                    .toLowerCase()
-                    .contains(textEditingValue.text.toLowerCase()));
-              }
-            },
-            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-              return TextField(
-                controller: controller,
-                focusNode: focusNode,
-                onEditingComplete: onEditingComplete,
-                onChanged: (value) {
-                  setState(() {
-                    playerOne = value;
-                    playerOneNameError = _validateName(playerOne);
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: "Player 1",
-                  errorText: playerOneNameError,
-                ),
-              );
-            },
-            onSelected: (String selection) {
-              setState(() {
-                playerOne = selection;
-                playerOneNameError = _validateName(playerOne);
-              });
-            },
-          ),
-
-          TextField(
-            controller: _playerOneScoreController,
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            onChanged: (value) {
-              setState(() {
-                if(value.isEmpty) {
-                  playerOneScore = '';
-                  playerOneScoreError = 'Enter a value.';
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Autocomplete(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text.isEmpty) {
+                  return const Iterable<String>.empty();
                 } else {
-                  playerOneScore = value;
-                  playerOneScoreError = _validateScore();
+                  return autoCompleteData.where((word) => word
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase()));
                 }
-              });
-            },
-            decoration: InputDecoration(
-              hintText: _playerOneScoreController.text.isEmpty ? 'Player 1 Score' : '',
-              errorText: playerOneScoreError,
+              },
+              fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  onEditingComplete: onEditingComplete,
+                  onChanged: (value) {
+                    setState(() {
+                      playerOne = value;
+                      playerOneNameError = _validateName(playerOne);
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Player 1",
+                    errorText: playerOneNameError,
+                  ),
+                );
+              },
+              onSelected: (String selection) {
+                setState(() {
+                  playerOne = selection;
+                  playerOneNameError = _validateName(playerOne);
+                });
+              },
             ),
-          ),
-
-          Autocomplete(
-            optionsBuilder: (TextEditingValue textEditingValue) {
-              if (textEditingValue.text.isEmpty) {
-                return const Iterable<String>.empty();
-              } else {
-                return autoCompleteData.where((word) => word
-                    .toLowerCase()
-                    .contains(textEditingValue.text.toLowerCase()));
-              }
-            },
-            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-              return TextField(
-                controller: controller,
-                focusNode: focusNode,
-                onEditingComplete: onEditingComplete,
-                onChanged: (value) {
-                  setState(() {
-                    playerTwo = value;
-                    playerTwoNameError = _validateName(playerTwo);
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: "Player 2",
-                  errorText: playerTwoNameError,
-                ),
-              );
-            },
-            onSelected: (String selection) {
-              setState(() {
-                playerTwo = selection;
-                playerTwoNameError = _validateName(playerTwo);
-              });
-            },
-          ),
-
-          TextField(
-            controller: _playerTwoScoreController,
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            onChanged: (value) {
-              setState(() {
-                if(value.isEmpty) {
-                  playerTwoScore = '';
-                  playerTwoScoreError = 'Enter a value.';
+        
+            TextField(
+              controller: _playerOneScoreController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              onChanged: (value) {
+                setState(() {
+                  if(value.isEmpty) {
+                    playerOneScore = '';
+                    playerOneScoreError = 'Enter a value.';
+                  } else {
+                    playerOneScore = value;
+                    playerOneScoreError = _validateScore();
+                  }
+                });
+              },
+              decoration: InputDecoration(
+                hintText: _playerOneScoreController.text.isEmpty ? 'Player 1 Score' : '',
+                errorText: playerOneScoreError,
+              ),
+            ),
+        
+            Autocomplete(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text.isEmpty) {
+                  return const Iterable<String>.empty();
                 } else {
-                  playerTwoScore = value;
-                  playerTwoScoreError = _validateScore();
+                  return autoCompleteData.where((word) => word
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase()));
                 }
-              });
-            },
-            decoration: InputDecoration(
-              hintText: _playerTwoScoreController.text.isEmpty ? 'Player 2 Score' : '',
-              errorText: playerTwoScoreError, 
+              },
+              fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  onEditingComplete: onEditingComplete,
+                  onChanged: (value) {
+                    setState(() {
+                      playerTwo = value;
+                      playerTwoNameError = _validateName(playerTwo);
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Player 2",
+                    errorText: playerTwoNameError,
+                  ),
+                );
+              },
+              onSelected: (String selection) {
+                setState(() {
+                  playerTwo = selection;
+                  playerTwoNameError = _validateName(playerTwo);
+                });
+              },
             ),
-          ),
-
-        ],
+        
+            TextField(
+              controller: _playerTwoScoreController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              onChanged: (value) {
+                setState(() {
+                  if(value.isEmpty) {
+                    playerTwoScore = '';
+                    playerTwoScoreError = 'Enter a value.';
+                  } else {
+                    playerTwoScore = value;
+                    playerTwoScoreError = _validateScore();
+                  }
+                });
+              },
+              decoration: InputDecoration(
+                hintText: _playerTwoScoreController.text.isEmpty ? 'Player 2 Score' : '',
+                errorText: playerTwoScoreError, 
+              ),
+            ),
+        
+          ],
+        ),
       ),
       actions: <Widget>[
         ElevatedButton(
