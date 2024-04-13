@@ -137,30 +137,6 @@ class _AddGameState extends State<AddGame> {
     Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
     await mainDB.instance.createGame(newGame);
   }
-  
-  // // START RANKING ALGORITHM 
-  // final double kFactor = 32; // The K-factor determines the sensitivity of the rating update
-
-  // // Calculate expected score based on rank difference
-  // double calculateExpectedScore(int playerRank, int opponentRank) {
-  //   return 1 / (1 + pow(10, ((opponentRank - playerRank) / 400)));
-  // }
-
-  // // Update player rank based on actual and expected scores
-  // int updateRank(int playerRank, int opponentRank, double playerScore, double opponentScore) {
-  //   double expectedScore = calculateExpectedScore(playerRank, opponentRank);
-  //   double scoreDifference = playerScore - expectedScore;
-  //   return (playerRank + (kFactor * scoreDifference)).toInt();
-  // }
-
-  // // Ranking algorithm function
-  // Tuple<int, int> rankingAlgorithm(int playerOneRank, double playerOneScore, int playerTwoRank, double playerTwoScore) {
-  //   int newPlayerOneRank = updateRank(playerOneRank, playerTwoRank, playerOneScore, playerTwoScore);
-  //   int newPlayerTwoRank = updateRank(playerTwoRank, playerOneRank, playerTwoScore, playerOneScore);
-  //   return Tuple(newPlayerOneRank, newPlayerTwoRank);
-  // }
-  // // END RANKING ALGORITHM
-
 
   @override
   Widget build(BuildContext context) {
