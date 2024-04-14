@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
           showDialog(
             context: context, 
             builder: (context){
-              return AddGame();
+              return const AddGame();
             }
           );
         },
