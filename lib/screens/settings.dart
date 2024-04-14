@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mrping/main.dart';
+import 'package:mrping/screens/adminpin.dart';
 import '../db/mainDB.dart';
 import '../db/player.dart';
 
@@ -24,22 +25,11 @@ class Settings extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context){
-                    return AddPlayer();
+                    return const AddPlayer();
                   }
                 );
               },
               child: const Text("Add Player"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context){
-                    return DeletePlayer();
-                  }
-                );
-              },
-              child: const Text("Delete Player"),
             ),
             const ListTile(
               title: Text("Theme Options"),
@@ -52,6 +42,21 @@ class Settings extends StatelessWidget {
               onPressed: () => MyApp.of(context).changeTheme(ThemeMode.light),
               child: const Text('Light'),
             ),
+            const ListTile(
+              title: Text("Admin Controls"),
+            ),
+            ElevatedButton(
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                      const AdminPin()
+                  ),
+                );
+              }, 
+              child: const Text('Admin Page')
+            )
           ],
         ),
       ),
@@ -62,7 +67,7 @@ class Settings extends StatelessWidget {
 //Add Player Pop-up
 class AddPlayer extends StatefulWidget {
 
-  AddPlayer({super.key});
+  const AddPlayer({super.key});
 
   @override
   State<AddPlayer> createState() => _AddPlayerState();
@@ -150,131 +155,6 @@ class _AddPlayerState extends State<AddPlayer> {
             }
           },
           child: const Text('Add'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Cancel'),
-        ),
-      ],
-    );
-  }
-}
-
-//Delete Player Pop-up
-class DeletePlayer extends StatefulWidget {
-  const DeletePlayer({super.key});
-
-  @override
-  State<DeletePlayer> createState() => _DeletePlayerState();
-}
-class _DeletePlayerState extends State<DeletePlayer> {
-  late List<String> autoCompleteData = [];
-  String deletedPlayer = '';
-  String? errorText = null;
-  
-  @override
-  void initState(){
-    super.initState();
-    fetchAutoCompleteData();
-  }
-
-  void fetchAutoCompleteData() async {
-    final players = await mainDB.instance.readAllPlayerInfo();
-    autoCompleteData = players.where((player) => player.name != null).map((player) => player.name!).toList();
-  }
-
-  // Checks if a string contains only A-Z or a-z or the space character ' '
-  bool isValidString(String str) {
-    for(int i = 0; i < str.length; i++) {
-      String char = str[i];
-      int charCode = char.codeUnitAt(0);
-      
-      if(!((charCode >= 65 && charCode <= 90) || // uppercase letters (A-Z)
-            (charCode >= 97 && charCode <= 122) || // lowercase letters (a-z)
-            charCode == 32)) { // space character
-        return false;
-      }
-    }
-    return true;
-  }
-
-  String? _validateName(String value) {
-    if(value.isEmpty) {
-      return 'Enter a value.';
-    }
-
-    if(!isValidString(value)) {
-      return 'Only letters and spaces are allowed.';
-    }
-
-    if(autoCompleteData.where((element) => element == value).length != 1) {
-      return 'Name is not recognized.';
-    }
-
-    return null;
-  }
-
-  void deletePlayer(String name) async {
-    await mainDB.instance.deletePlayer(name);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    fetchAutoCompleteData();
-
-    return AlertDialog(
-      title: const Text('Enter Player Details'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-
-          Autocomplete(
-            optionsBuilder: (TextEditingValue textEditingValue) {
-              if (textEditingValue.text.isEmpty) {
-                return const Iterable<String>.empty();
-              } else {
-                return autoCompleteData.where((word) => word
-                    .toLowerCase()
-                    .contains(textEditingValue.text.toLowerCase()));
-              }
-            },
-            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-              return TextField(
-                controller: controller,
-                focusNode: focusNode,
-                onEditingComplete: onEditingComplete,
-                onChanged: (value) {
-                  setState(() {
-                    deletedPlayer = value;
-                    errorText = _validateName(deletedPlayer);
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: "Player",
-                  errorText: errorText,
-                ),
-              );
-            },
-            onSelected: (String selection) {
-              setState(() {
-                deletedPlayer = selection;
-                errorText = null;
-              });
-            },
-          ),
-        ],
-      ),
-      actions: <Widget>[
-        ElevatedButton(
-          onPressed: () {
-            if(errorText == null) {
-              deletePlayer(deletedPlayer);
-              Navigator.of(context).pop();
-            }
-          },
-          child: const Text('Delete'),
         ),
         ElevatedButton(
           onPressed: () {

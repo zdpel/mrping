@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/screens/adminpin.dart';
 import '../db/mainDB.dart';
 
 class AdminPage extends StatelessWidget {
@@ -14,20 +15,31 @@ class AdminPage extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 8.0),
         child: ListView(
           children: [
-            ListTile(
-              title: Text("Player Options"),
+            const ListTile(
+              title: Text("Admin Settings"),
             ),
             ElevatedButton(
               onPressed : () {
                 showDialog(
                   context: context,
                   builder: (context){
-                    return DeletePlayer();
+                    return const DeletePlayer();
                   }
                 );
               },
               child: const Text("Delete Player"),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                    CreatePIN(parentContext: context),
+                  ),
+                );
+              }, 
+              child: const Text("Reset PIN"))
           ],
         ),
       ),
@@ -45,7 +57,7 @@ class DeletePlayer extends StatefulWidget {
 class _DeletePlayerState extends State<DeletePlayer> {
   late List<String> autoCompleteData = [];
   String deletedPlayer = '';
-  String? errorText = null;
+  String? errorText;
   
   @override
   void initState(){
