@@ -185,7 +185,8 @@ class _AddGameState extends State<AddGame> {
               controller: _playerOneScoreController,
               keyboardType: TextInputType.number,
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(2)
               ],
               onChanged: (value) {
                 setState(() {
@@ -243,7 +244,8 @@ class _AddGameState extends State<AddGame> {
               controller: _playerTwoScoreController,
               keyboardType: TextInputType.number,
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(2)
               ],
               onChanged: (value) {
                 setState(() {
