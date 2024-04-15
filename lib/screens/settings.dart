@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mrping/main.dart';
 import 'package:mrping/screens/adminpin.dart';
 import '../db/mainDB.dart';
@@ -111,10 +112,16 @@ class _AddPlayerState extends State<AddPlayer> {
           TextField(
             controller: _firstnameController,
             decoration: const InputDecoration(labelText: 'First Name'),
+            inputFormatters: <TextInputFormatter>[
+              LengthLimitingTextInputFormatter(15)
+            ],
           ),
           TextField(
             controller: _lastnameController,
             decoration: InputDecoration(labelText: 'Last Name', errorText: lastNameEmpty ? "Values can't be empty" : nameExists ? "Name already exists" : null),
+            inputFormatters: <TextInputFormatter>[
+               LengthLimitingTextInputFormatter(15)
+            ],
           ),
           //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING. REMOVE LATER
           TextField(
