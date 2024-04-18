@@ -2,7 +2,7 @@ const String tableGames = 'games';
 
 class GameFields {
   static final List<String> values = [
-    id, playerOne, playerTwo, playerOneScore, playerTwoScore
+    id, playerOne, playerTwo, playerOneScore, playerTwoScore, ratingChange
   ];
 
   static const String id = '_id';
@@ -10,6 +10,7 @@ class GameFields {
   static const String playerTwo = 'playerTwo';
   static const String playerOneScore = 'playerOneScore';
   static const String playerTwoScore = 'playerTwoScore';
+  static const String ratingChange = 'ratingChange';
 }
 
 class Game {
@@ -18,13 +19,15 @@ class Game {
   final String? playerTwo;
   final int? playerOneScore;
   final int? playerTwoScore;
+  final int? ratingChange;
   
   const Game({
     this.id,
     this.playerOne,
     this.playerTwo,
     this.playerOneScore,
-    this.playerTwoScore
+    this.playerTwoScore,
+    this.ratingChange
   });
 
   Game copy({
@@ -32,7 +35,8 @@ class Game {
     String? playerOne,
     String? playerTwo,
     int? playerOneScore,
-    int? playerTwoScore
+    int? playerTwoScore,
+    int? ratingChange,
   }) =>
     Game(
       id: id ?? this.id,
@@ -40,6 +44,7 @@ class Game {
       playerTwo: playerTwo ?? this.playerTwo,
       playerOneScore: playerOneScore ?? this.playerOneScore,
       playerTwoScore: playerTwoScore ?? this.playerTwoScore,
+      ratingChange: ratingChange ?? this.ratingChange,
     );
   
   //converting json retrieved from db to Player object
@@ -48,7 +53,8 @@ class Game {
     playerOne: json[GameFields.playerOne] as String,
     playerTwo: json[GameFields.playerTwo] as String,
     playerOneScore: json[GameFields.playerOneScore] as int,
-    playerTwoScore: json[GameFields.playerTwoScore] as int
+    playerTwoScore: json[GameFields.playerTwoScore] as int,
+    ratingChange: json[GameFields.ratingChange] as int,
   );
 
 
@@ -58,5 +64,6 @@ class Game {
     GameFields.playerTwo: playerTwo,
     GameFields.playerOneScore: playerOneScore, 
     GameFields.playerTwoScore: playerTwoScore, 
+    GameFields.ratingChange: ratingChange,
   };
 }

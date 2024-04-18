@@ -54,6 +54,10 @@ class _GameHistoryState extends State<GameHistory> {
                                   'Score: ${games[games.length - index - 1].playerOneScore}',
                                   style: const TextStyle(fontSize: 16.0),
                                 ),
+                                Text(
+                                  'Rating: ${(games[games.length - index - 1].ratingChange! > 0) ? ('+${games[games.length-index-1].ratingChange}') : ('${games[games.length-index-1].ratingChange}')}',
+                                  style: const TextStyle(fontSize: 16.0),
+                                ),
                               ],
                             ),
                             Column(
@@ -67,6 +71,10 @@ class _GameHistoryState extends State<GameHistory> {
                                   'Score: ${games[games.length - index - 1].playerTwoScore}',
                                   style: const TextStyle(fontSize: 16.0),
                                 ),
+                                Text(
+                                  'Rating: ${(games[games.length - index - 1].ratingChange! > 0) ? ('${games[games.length-index-1].ratingChange!*-1}') : ('+${games[games.length-index-1].ratingChange!*-1}')}',
+                                  style: const TextStyle(fontSize: 16.0),
+                                )
                               ],
                             ),
                           ],

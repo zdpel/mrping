@@ -161,7 +161,9 @@ class _AddGameState extends State<AddGame> {
   }
 
   void _addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
-    Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
+    int ratingChange = await _updatePlayerRatings();
+
+    Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore, ratingChange: ratingChange);
     await mainDB.instance.createGame(newGame);
   }
 
@@ -188,7 +190,7 @@ class _AddGameState extends State<AddGame> {
     double baseFactor = 64.0;
 
     // point difference weight
-    double bonusFactor = 10.0;
+    double bonusFactor = 12.0;
 
     // outcome of the match
     int actualOutcome = (playerPoints > opponentPoints) ? 1 : 0;
@@ -211,7 +213,7 @@ class _AddGameState extends State<AddGame> {
     return ratingChange;
   }
 
-    void _updatePlayerRatings() async {
+  Future<int> _updatePlayerRatings() async {
     Player pPlayerOne = await mainDB.instance.readPlayerInfo(playerOne);
     Player pPlayerTwo = await mainDB.instance.readPlayerInfo(playerTwo);
 
@@ -235,6 +237,8 @@ class _AddGameState extends State<AddGame> {
 
     mainDB.instance.updatePlayer(pPlayerOneUpdated);
     mainDB.instance.updatePlayer(pPlayerTwoUpdated);
+
+    return ratingChange;
   }
 
   @override
@@ -371,7 +375,6 @@ class _AddGameState extends State<AddGame> {
           onPressed: () {
             if(_validInput()) {
               _addGame(playerOne, int.parse(playerOneScore!), playerTwo, int.parse(playerTwoScore!));
-              _updatePlayerRatings();
 
               Navigator.of(context).pop();
             }

@@ -54,7 +54,8 @@ class mainDB{
       ${GameFields.playerOne} $textType,
       ${GameFields.playerTwo} $textType,
       ${GameFields.playerOneScore} $integerType,
-      ${GameFields.playerTwoScore} $integerType
+      ${GameFields.playerTwoScore} $integerType,
+      ${GameFields.ratingChange} $integerType
     )''');
   }
 
