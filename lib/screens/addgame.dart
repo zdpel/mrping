@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../db/mainDB.dart';
 import '../db/game.dart';
+import '../db/player.dart';
 import 'dart:math';
 
 class AddGame extends StatefulWidget {
@@ -20,11 +21,13 @@ class _AddGameState extends State<AddGame> {
   String? playerOneScore;
   String? playerOneNameError;
   String? playerOneScoreError;
+  int playerOneRating = 0;
   String playerTwo = '';
   String? playerTwoScore;
   String? playerTwoNameError;
   String? playerTwoScoreError;
-  
+  int playerTwoRating = 0;
+
   @override
   void initState(){
     super.initState();
@@ -162,7 +165,7 @@ class _AddGameState extends State<AddGame> {
     await mainDB.instance.createGame(newGame);
   }
 
-  double calculateExpectedOutcome(int playerRating, int opponentRating) {
+  double _calculateExpectedOutcome(int playerRating, int opponentRating) {
     // constant c-factor
     double c = 400.0;
 
@@ -174,7 +177,13 @@ class _AddGameState extends State<AddGame> {
     return qA / (qA + qB);
   }
 
-  int calculateRatingChange(int playerRating, int playerPoints, int opponentRating, int opponentPoints) {
+  int _calculateRatingChange(int playerRating, int playerPoints, int opponentRating, int opponentPoints) {
+    debugPrint("Calculating rating change for the following values");
+    debugPrint("playerRating: $playerRating");
+    debugPrint("playerPoints: $playerPoints");
+    debugPrint("opponentRating: $opponentRating");
+    debugPrint("opponentPoints: $opponentPoints");
+
     // rating difference weight
     double baseFactor = 64.0;
 
@@ -185,7 +194,7 @@ class _AddGameState extends State<AddGame> {
     int actualOutcome = (playerPoints > opponentPoints) ? 1 : 0;
 
     // expected outcome of the match
-    double expectedOutcome = calculateExpectedOutcome(playerRating, opponentRating);
+    double expectedOutcome = _calculateExpectedOutcome(playerRating, opponentRating);
     debugPrint("expectedOutcome: $expectedOutcome");
 
     // calculate the base rating change based on the rating difference
@@ -200,6 +209,32 @@ class _AddGameState extends State<AddGame> {
     int ratingChange = (base + bonus).round();
 
     return ratingChange;
+  }
+
+    void _updatePlayerRatings() async {
+    Player pPlayerOne = await mainDB.instance.readPlayerInfo(playerOne);
+    Player pPlayerTwo = await mainDB.instance.readPlayerInfo(playerTwo);
+
+    playerOneRating = pPlayerOne.rating!;
+    playerTwoRating = pPlayerTwo.rating!;
+
+    int ratingChange = _calculateRatingChange(playerOneRating, int.parse(playerOneScore!), playerTwoRating, int.parse(playerTwoScore!));
+
+    int winner = (int.parse(playerOneScore!) > int.parse(playerTwoScore!)) ? 1 : 0;
+
+    Player pPlayerOneUpdated = pPlayerOne.copy(
+      wins: (winner == 1) ? (pPlayerOne.wins! + 1) : pPlayerOne.wins,
+      losses: (winner == 0) ? (pPlayerOne.losses! + 1) : pPlayerOne.losses,
+      rating: pPlayerOne.rating! + ratingChange
+    );
+    Player pPlayerTwoUpdated = pPlayerTwo.copy(
+      wins: (winner == 1) ? pPlayerTwo.wins : (pPlayerTwo.wins! + 1),
+      losses: (winner == 0) ? pPlayerTwo.losses : (pPlayerTwo.losses! + 1),
+      rating: pPlayerTwo.rating! - ratingChange
+    );
+
+    mainDB.instance.updatePlayer(pPlayerOneUpdated);
+    mainDB.instance.updatePlayer(pPlayerTwoUpdated);
   }
 
   @override
@@ -336,15 +371,7 @@ class _AddGameState extends State<AddGame> {
           onPressed: () {
             if(_validInput()) {
               _addGame(playerOne, int.parse(playerOneScore!), playerTwo, int.parse(playerTwoScore!));
-              
-              // update player ranking
-              int ratingChange = calculateRatingChange(1200, 21, 1200, 17);
-              debugPrint("ratingChange: $ratingChange");
-
-              // TODO: 
-              // add rating change to player one rank
-              // subtract rating change from player two rank
-              
+              _updatePlayerRatings();
 
               Navigator.of(context).pop();
             }
@@ -360,11 +387,4 @@ class _AddGameState extends State<AddGame> {
       ],
     );
   }
-}
-
-class Tuple<T1, T2> {
-  final T1 item1;
-  final T2 item2;
-
-  Tuple(this.item1, this.item2);
 }

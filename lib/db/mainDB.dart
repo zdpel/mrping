@@ -74,21 +74,21 @@ class mainDB{
   }
 
   //read single player info
-  Future<Player> readPlayerInfo(int id) async {
+  Future<Player> readPlayerInfo(String name) async {
     final db = await instance.database;
 
     final maps = await db.query(
       tablePlayers,
       columns: PlayerFields.values,
-      where: '${PlayerFields.id} = ?',
-      whereArgs: [id],
+      where: '${PlayerFields.name} = ?',
+      whereArgs: [name],
     );
 
     if(maps.isNotEmpty){
       return Player.fromJson(maps.first);
     } else{
       //if db entry is not found
-      throw Exception('ID $id not found');
+      throw Exception('ID $name not found');
     }
   }
 
