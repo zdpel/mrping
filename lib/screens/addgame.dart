@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mrping/main.dart';
+import 'package:provider/provider.dart';
 import '../db/mainDB.dart';
 import '../db/game.dart';
 
@@ -136,6 +138,7 @@ class _AddGameState extends State<AddGame> {
   void _addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
     Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
     await mainDB.instance.createGame(newGame);
+    Provider.of<DatabaseInfo>(context, listen: false).getGames();
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/main.dart';
+import 'package:provider/provider.dart';
 import '../db/game.dart';
-import '../db/mainDB.dart';
 
 class GameHistory extends StatefulWidget {
   const GameHistory({super.key});
@@ -10,21 +11,14 @@ class GameHistory extends StatefulWidget {
 }
 
 class _GameHistoryState extends State<GameHistory> {
-  late List<Game> games = [];
-
   @override
   void initState(){
     super.initState();
-    refreshGames();
-  }
-
-  Future refreshGames() async {
-    games = await mainDB.instance.readAllGameInfo();
-    setState(() {}); 
   }
 
   @override
   Widget build(BuildContext context) {
+    List<Game> games = context.watch<DatabaseInfo>().games;
     return Center(
       child: Column(
         children: <Widget>[
