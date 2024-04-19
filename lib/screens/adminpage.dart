@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/main.dart';
 import 'package:mrping/screens/adminpin.dart';
+import 'package:provider/provider.dart';
 import '../db/mainDB.dart';
 
 class AdminPage extends StatelessWidget {
@@ -103,6 +105,7 @@ class _DeletePlayerState extends State<DeletePlayer> {
 
   void deletePlayer(String name) async {
     await mainDB.instance.deletePlayer(name);
+    Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
   }
 
   @override
