@@ -20,12 +20,12 @@ class _AddGameState extends State<AddGame> {
   late List<String> autoCompleteData = [];
 
   String playerOne = '';
-  String? playerOneScore;
+  int? playerOneScore;
   String? playerOneNameError;
   String? playerOneScoreError;
   int playerOneRating = 0;
   String playerTwo = '';
-  String? playerTwoScore;
+  int? playerTwoScore;
   String? playerTwoNameError;
   String? playerTwoScoreError;
   int playerTwoRating = 0;
@@ -84,10 +84,10 @@ class _AddGameState extends State<AddGame> {
   }
 
   bool _validateScoreOnAdd() {
-    if(playerOneScore == null || playerTwoScore == null || playerOneScore == '' || playerTwoScore == '') {
+    if(playerOneScore == null || playerTwoScore == null) {
       setState(() {
-        playerOneScoreError = (playerOneScoreError == 'Invalid score') ? 'Invalid score' : (playerOneScore == null || playerOneScore == '') ? 'Enter a value' : null;
-        playerTwoScoreError = (playerTwoScoreError == 'Invalid score') ? 'Invalid score' : (playerTwoScore == null || playerTwoScore == '') ? 'Enter a value' : null;
+        playerOneScoreError = (playerOneScoreError == 'Invalid score') ? 'Invalid score' : (playerOneScore == null) ? 'Enter a value' : null;
+        playerTwoScoreError = (playerTwoScoreError == 'Invalid score') ? 'Invalid score' : (playerTwoScore == null) ? 'Enter a value' : null;
       });
 
       return false;
@@ -101,11 +101,11 @@ class _AddGameState extends State<AddGame> {
     debugPrint("plaerTwoScore: $playerTwoScore");
 
     // if empty score tell user to enter a value in the correct field
-    if(playerOneScore == '') {
+    if(playerOneScore == null) {
       return (player == 1) ? 'Enter a value' : null;
     }
 
-    if(playerTwoScore == '') {
+    if(playerTwoScore == null) {
       return (player == 2) ? 'Enter a value' : null;
     }
 
@@ -115,8 +115,8 @@ class _AddGameState extends State<AddGame> {
     }
 
     // get integer values now that both scoreOne and scoreTwo are not empty
-    int scoreOne = int.parse(playerOneScore!);
-    int scoreTwo = int.parse(playerTwoScore!);
+    int scoreOne = playerOneScore!;
+    int scoreTwo = playerTwoScore!;
 
     // 0-7 skunk score
     if((scoreOne == 0 && scoreTwo == 7) || (scoreOne == 7 && scoreTwo == 0)) {
@@ -221,22 +221,40 @@ class _AddGameState extends State<AddGame> {
     Player pPlayerOne = await mainDB.instance.readPlayerInfo(playerOne);
     Player pPlayerTwo = await mainDB.instance.readPlayerInfo(playerTwo);
 
+    bool playerOneSkunked = false;
+    bool playerTwoSkunked = false;
+
+    if(playerOneScore == 0 && playerTwoScore == 7 || playerOneScore == 1 && playerTwoScore == 11) {
+      playerOneSkunked = true;
+    } 
+    else if(playerOneScore == 7 && playerTwoScore == 0 || playerOneScore == 11 && playerTwoScore == 1) {
+      playerTwoSkunked = true;
+    }
+
     playerOneRating = pPlayerOne.rating!;
     playerTwoRating = pPlayerTwo.rating!;
 
-    int ratingChange = _calculateRatingChange(playerOneRating, int.parse(playerOneScore!), playerTwoRating, int.parse(playerTwoScore!));
+    int ratingChange = _calculateRatingChange(playerOneRating, playerOneScore!, playerTwoRating, playerTwoScore!);
 
-    int winner = (int.parse(playerOneScore!) > int.parse(playerTwoScore!)) ? 1 : 0;
+    int winner = (playerOneScore! > playerTwoScore!) ? 1 : 0;
 
     Player pPlayerOneUpdated = pPlayerOne.copy(
       wins: (winner == 1) ? (pPlayerOne.wins! + 1) : pPlayerOne.wins,
       losses: (winner == 0) ? (pPlayerOne.losses! + 1) : pPlayerOne.losses,
-      rating: pPlayerOne.rating! + ratingChange
+      rating: pPlayerOne.rating! + ratingChange,
+      pf: pPlayerOne.pf! + playerOneScore!,
+      pa: pPlayerOne.pa! + playerTwoScore!,
+      skunks: (playerTwoSkunked) ? (pPlayerOne.skunks! + 1) : pPlayerOne.skunks,
+      skunked: (playerOneSkunked) ? (pPlayerOne.skunked! + 1) : pPlayerOne.skunked,
     );
     Player pPlayerTwoUpdated = pPlayerTwo.copy(
       wins: (winner == 1) ? pPlayerTwo.wins : (pPlayerTwo.wins! + 1),
       losses: (winner == 0) ? pPlayerTwo.losses : (pPlayerTwo.losses! + 1),
-      rating: pPlayerTwo.rating! - ratingChange
+      rating: pPlayerTwo.rating! - ratingChange,
+      pf: pPlayerTwo.pf! + playerTwoScore!,
+      pa: pPlayerTwo.pa! + playerOneScore!,
+      skunks: (playerOneSkunked) ? (pPlayerTwo.skunks! + 1) : pPlayerTwo.skunks,
+      skunked: (playerTwoSkunked) ? (pPlayerTwo.skunked! + 1) : pPlayerTwo.skunked,
     );
 
     mainDB.instance.updatePlayer(pPlayerOneUpdated);
@@ -298,10 +316,9 @@ class _AddGameState extends State<AddGame> {
               onChanged: (value) {
                 setState(() {
                   if(value.isEmpty) {
-                    playerOneScore = '';
                     playerOneScoreError = 'Enter a value.';
                   } else {
-                    playerOneScore = value;
+                    playerOneScore = int.parse(value);
                     playerOneScoreError = _validateScoreOnType(1);
                   }
                 });
@@ -357,10 +374,9 @@ class _AddGameState extends State<AddGame> {
               onChanged: (value) {
                 setState(() {
                   if(value.isEmpty) {
-                    playerTwoScore = '';
                     playerTwoScoreError = 'Enter a value.';
                   } else {
-                    playerTwoScore = value;
+                    playerTwoScore = int.parse(value);
                     playerTwoScoreError = _validateScoreOnType(2);
                   }
                 });
@@ -378,7 +394,7 @@ class _AddGameState extends State<AddGame> {
         ElevatedButton(
           onPressed: () {
             if(_validInput()) {
-              _addGame(playerOne, int.parse(playerOneScore!), playerTwo, int.parse(playerTwoScore!));
+              _addGame(playerOne, playerOneScore!, playerTwo, playerTwoScore!);
 
               Navigator.of(context).pop();
             }

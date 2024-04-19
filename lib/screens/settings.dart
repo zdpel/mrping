@@ -102,7 +102,7 @@ class _AddPlayerState extends State<AddPlayer> {
   Widget build(BuildContext context) {
     void addPlayer(String name, int rating) async {
       //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING
-      Player newPlayer = Player(name: name, wins: 2, losses: 2, rating: rating);
+      Player newPlayer = Player(name: name, wins: 0, losses: 0, rating: rating, pf: 0, pa: 0, skunks: 0, skunked: 0);
       await mainDB.instance.createPlayer(newPlayer);
       Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
     }
