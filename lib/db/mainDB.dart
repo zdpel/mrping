@@ -130,6 +130,20 @@ class mainDB{
     return result.map((json) => Game.fromJson(json)).toList();
   }
 
+  Future<List<Game>> readPlayerGames(String name) async {
+    final db = await instance.database;
+
+    final result = await db.query(
+      tableGames,
+      where: '${GameFields.playerOne} = ? OR ${GameFields.playerTwo} = ?',
+      whereArgs: [name, name],
+      limit: 20,
+      orderBy: '${GameFields.id} DESC',
+    );
+
+    return result.map((json) => Game.fromJson(json)).toList().reversed.toList();
+  }
+
   //update player info
   Future<int> updatePlayer(Player player) async {
     final db = await instance.database;

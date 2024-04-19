@@ -165,7 +165,7 @@ class _AddGameState extends State<AddGame> {
   void _addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
     int ratingChange = await _updatePlayerRatings();
 
-    Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore, ratingChange: ratingChange);
+    Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore, ratingChange: ratingChange.abs());
     await mainDB.instance.createGame(newGame);
     Provider.of<DatabaseInfo>(context, listen: false).getGames();
     Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
