@@ -46,7 +46,11 @@ class mainDB{
       ${PlayerFields.name} $textType,
       ${PlayerFields.wins} $integerType,
       ${PlayerFields.losses} $integerType,
-      ${PlayerFields.rating} $integerType
+      ${PlayerFields.rating} $integerType,
+      ${PlayerFields.pf} $integerType,
+      ${PlayerFields.pa} $integerType,
+      ${PlayerFields.skunks} $integerType,
+      ${PlayerFields.skunked} $integerType
     )''');
 
     await db.execute('''CREATE TABLE $tableGames (
