@@ -1,14 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/db/game.dart';
 import 'package:mrping/screens/settings.dart';
+import 'package:provider/provider.dart';
 import './db/player.dart';
 import './db/mainDB.dart';
 import 'screens/addgame.dart';
 import 'screens/dashboard.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => DatabaseInfo(),
+      child: const MyApp(),
+    )
+  );
 }
 //test
+
+class DatabaseInfo extends ChangeNotifier {
+  List<Game> games = [];
+
+  void getGames() async {
+    games = await mainDB.instance.readAllGameInfo();
+    notifyListeners();
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -21,6 +38,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DatabaseInfo>(context, listen: false).getGames();
+    });
+  }
 
   @override
     Widget build(BuildContext context) {
