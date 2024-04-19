@@ -4,6 +4,8 @@ import 'package:mrping/main.dart';
 import 'package:provider/provider.dart';
 import '../db/mainDB.dart';
 import '../db/game.dart';
+import '../db/player.dart';
+import 'dart:math';
 
 class AddGame extends StatefulWidget {
   const AddGame({super.key});
@@ -21,11 +23,13 @@ class _AddGameState extends State<AddGame> {
   String? playerOneScore;
   String? playerOneNameError;
   String? playerOneScoreError;
+  int playerOneRating = 0;
   String playerTwo = '';
   String? playerTwoScore;
   String? playerTwoNameError;
   String? playerTwoScoreError;
-  
+  int playerTwoRating = 0;
+
   @override
   void initState(){
     super.initState();
@@ -41,7 +45,7 @@ class _AddGameState extends State<AddGame> {
   }
 
   // Checks if a string contains only A-Z or a-z or the space character ' '
-  bool isValidString(String str) {
+  bool _isValidString(String str) {
     for(int i = 0; i < str.length; i++) {
       String char = str[i];
       int charCode = char.codeUnitAt(0);
@@ -61,84 +65,183 @@ class _AddGameState extends State<AddGame> {
         (playerOne.isEmpty) ? playerOneNameError = 'Enter a value' : null;
         (playerTwo.isEmpty) ? playerTwoNameError = 'Enter a value' : null;
       });
-      return 'Enter a value.';
+      return 'Enter a value';
     }
 
-    if(!isValidString(value)) {
-      return 'Only letters and spaces are allowed.';
+    if(!_isValidString(value)) {
+      return 'Only letters and spaces are allowed';
     }
 
     if(autoCompleteData.where((element) => element == value).length != 1) {
-      return 'Name is not recognized.';
+      return 'Name is not recognized';
     }
 
     if(playerOne == playerTwo) {
-      return 'Names may only be used once.';
+      return 'Names may only be used once';
     }
 
     return null;
   }
 
-  String? _validateScore() {
-    // don't validate until both scores have been entered
-    if(playerOneScore == null || playerTwoScore == null) {
+  bool _validateScoreOnAdd() {
+    if(playerOneScore == null || playerTwoScore == null || playerOneScore == '' || playerTwoScore == '') {
       setState(() {
-        (playerOneScore == null) ? playerOneScoreError = 'Enter a value.' : playerOneScoreError = null;
-        (playerTwoScore == null) ? playerTwoScoreError = 'Enter a value.' : playerTwoScoreError = null;
+        playerOneScoreError = (playerOneScoreError == 'Invalid score') ? 'Invalid score' : (playerOneScore == null || playerOneScore == '') ? 'Enter a value' : null;
+        playerTwoScoreError = (playerTwoScoreError == 'Invalid score') ? 'Invalid score' : (playerTwoScore == null || playerTwoScore == '') ? 'Enter a value' : null;
       });
+
+      return false;
+    }
+
+    return (playerOneScoreError == null && playerTwoScoreError == null) ? true : false;
+  }
+
+  String? _validateScoreOnType(int player) {
+    debugPrint("playerOneScore: $playerOneScore");
+    debugPrint("plaerTwoScore: $playerTwoScore");
+
+    // if empty score tell user to enter a value in the correct field
+    if(playerOneScore == '') {
+      return (player == 1) ? 'Enter a value' : null;
+    }
+
+    if(playerTwoScore == '') {
+      return (player == 2) ? 'Enter a value' : null;
+    }
+
+    // if either value is null we cannot proceed to checking integer values - exit here
+    if(playerOneScore == null || playerTwoScore == null) {
       return null;
     }
 
-    if(playerOneScore == '' || playerTwoScore == '') {
-      return null;
-    }
-
+    // get integer values now that both scoreOne and scoreTwo are not empty
     int scoreOne = int.parse(playerOneScore!);
     int scoreTwo = int.parse(playerTwoScore!);
 
-    // skunk scores are 7-0 and 11-1
-    if((scoreOne == 7 && scoreTwo == 0) || (scoreOne == 0 && scoreTwo == 7)) {
+    // 0-7 skunk score
+    if((scoreOne == 0 && scoreTwo == 7) || (scoreOne == 7 && scoreTwo == 0)) {
+      playerOneScoreError = null;
+      playerTwoScoreError = null;
+
       return null;
-    } else if((scoreOne == 11 && scoreTwo == 1) || (scoreOne == 1 && scoreTwo == 11)) {
+    }
+
+    // 1-11 skunk score
+    if((scoreOne == 1 && scoreTwo == 11) || (scoreOne == 11 && scoreTwo == 1)) {
+      playerOneScoreError = null;
+      playerTwoScoreError = null;
+
       return null;
     }
 
-    // if the game is not a skunk, at least one person must reach at least 21
-    if(scoreOne < 21 && scoreTwo < 21) {
-      return 'Invalid score.';
+    // both scoreOne and scoreTwo are [2, 21] and exactly ONE is equal to 21
+    if(scoreOne >= 2 && scoreOne <= 21 && scoreTwo >= 2 && scoreTwo <= 21 && ((scoreOne == 21) ^ (scoreTwo == 21))) {
+      playerOneScoreError = null;
+      playerTwoScoreError = null;
+
+      return null;
     }
 
-    // if either score is greater than 21, then the game went OT and must have a difference of 2 (win by 2)
-    if((scoreOne > 21 || scoreTwo > 21) && ((scoreOne - scoreTwo).abs() != 2)) {
-      return 'Invalid score.';
+    // OT scores must have a difference of 2
+    if((scoreOne > 21 || scoreTwo > 21) && ((scoreOne - scoreTwo).abs() == 2)) {
+      playerOneScoreError = null;
+      playerTwoScoreError = null;
+
+      return null;
     }
 
-    // if either score is 21 or greater, they cannot be equal
-    if((scoreOne >= 21 || scoreTwo >= 21) && (scoreOne == scoreTwo)) {
-      return 'Invalid score.';
-    }
-
-    // negative numbers should not be possible, but this handles it just in case
-    if(scoreOne < 0 || scoreTwo < 0) {
-      return 'Invalid score.';
-    }
-
-    playerOneScoreError = null;
-    playerTwoScoreError = null;
-
-    return null;
+    // the score is invalid - display both scores as invalid
+    return 'Invalid score';
   }
 
   bool _validInput() {
-    return _validateName(playerOne) == null &&
-        _validateName(playerTwo) == null &&
-        _validateScore() == null;
+    bool validPlayerOneName = (_validateName(playerOne) == null);
+    bool validPlayerTwoName = (_validateName(playerTwo) == null);
+    bool validScore = _validateScoreOnAdd();
+
+    return validPlayerOneName && validPlayerTwoName && validScore;
   }
 
   void _addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
-    Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore);
+    int ratingChange = await _updatePlayerRatings();
+
+    Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore, ratingChange: ratingChange);
     await mainDB.instance.createGame(newGame);
     Provider.of<DatabaseInfo>(context, listen: false).getGames();
+  }
+
+  double _calculateExpectedOutcome(int playerRating, int opponentRating) {
+    // constant c-factor
+    double c = 400.0;
+
+    // calculate Q values for both players
+    num qA = pow(10, playerRating / c);
+    num qB = pow(10, opponentRating / c);
+
+    // calculate expected outcome for player A
+    return qA / (qA + qB);
+  }
+
+  int _calculateRatingChange(int playerRating, int playerPoints, int opponentRating, int opponentPoints) {
+    debugPrint("Calculating rating change for the following values");
+    debugPrint("playerRating: $playerRating");
+    debugPrint("playerPoints: $playerPoints");
+    debugPrint("opponentRating: $opponentRating");
+    debugPrint("opponentPoints: $opponentPoints");
+
+    // rating difference weight
+    double baseFactor = 64.0;
+
+    // point difference weight
+    double bonusFactor = 12.0;
+
+    // outcome of the match
+    int actualOutcome = (playerPoints > opponentPoints) ? 1 : 0;
+
+    // expected outcome of the match
+    double expectedOutcome = _calculateExpectedOutcome(playerRating, opponentRating);
+    debugPrint("expectedOutcome: $expectedOutcome");
+
+    // calculate the base rating change based on the rating difference
+    double base = baseFactor * (actualOutcome - expectedOutcome);
+    debugPrint("base:  $base");
+
+    // calculate the bonus rating change based on the point difference
+    double bonus = bonusFactor * ((playerPoints - opponentPoints) / (playerPoints + opponentPoints));
+    debugPrint("bonus: $bonus");
+
+    // calculate the rating change for the match
+    int ratingChange = (base + bonus).round();
+
+    return ratingChange;
+  }
+
+  Future<int> _updatePlayerRatings() async {
+    Player pPlayerOne = await mainDB.instance.readPlayerInfo(playerOne);
+    Player pPlayerTwo = await mainDB.instance.readPlayerInfo(playerTwo);
+
+    playerOneRating = pPlayerOne.rating!;
+    playerTwoRating = pPlayerTwo.rating!;
+
+    int ratingChange = _calculateRatingChange(playerOneRating, int.parse(playerOneScore!), playerTwoRating, int.parse(playerTwoScore!));
+
+    int winner = (int.parse(playerOneScore!) > int.parse(playerTwoScore!)) ? 1 : 0;
+
+    Player pPlayerOneUpdated = pPlayerOne.copy(
+      wins: (winner == 1) ? (pPlayerOne.wins! + 1) : pPlayerOne.wins,
+      losses: (winner == 0) ? (pPlayerOne.losses! + 1) : pPlayerOne.losses,
+      rating: pPlayerOne.rating! + ratingChange
+    );
+    Player pPlayerTwoUpdated = pPlayerTwo.copy(
+      wins: (winner == 1) ? pPlayerTwo.wins : (pPlayerTwo.wins! + 1),
+      losses: (winner == 0) ? pPlayerTwo.losses : (pPlayerTwo.losses! + 1),
+      rating: pPlayerTwo.rating! - ratingChange
+    );
+
+    mainDB.instance.updatePlayer(pPlayerOneUpdated);
+    mainDB.instance.updatePlayer(pPlayerTwoUpdated);
+
+    return ratingChange;
   }
 
   @override
@@ -198,7 +301,7 @@ class _AddGameState extends State<AddGame> {
                     playerOneScoreError = 'Enter a value.';
                   } else {
                     playerOneScore = value;
-                    playerOneScoreError = _validateScore();
+                    playerOneScoreError = _validateScoreOnType(1);
                   }
                 });
               },
@@ -257,7 +360,7 @@ class _AddGameState extends State<AddGame> {
                     playerTwoScoreError = 'Enter a value.';
                   } else {
                     playerTwoScore = value;
-                    playerTwoScoreError = _validateScore();
+                    playerTwoScoreError = _validateScoreOnType(2);
                   }
                 });
               },
@@ -275,8 +378,6 @@ class _AddGameState extends State<AddGame> {
           onPressed: () {
             if(_validInput()) {
               _addGame(playerOne, int.parse(playerOneScore!), playerTwo, int.parse(playerTwoScore!));
-              
-              // update player ranking
 
               Navigator.of(context).pop();
             }
@@ -293,16 +394,3 @@ class _AddGameState extends State<AddGame> {
     );
   }
 }
-
-class Tuple<T1, T2> {
-  final T1 item1;
-  final T2 item2;
-
-  Tuple(this.item1, this.item2);
-}
-
-// Prototype Review Comments
-
-// Name collisions for new players
-// Overflow to limit number of players
-// Condensed player dropdown on leaderboard
