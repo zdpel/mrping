@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mrping/main.dart';
 import 'package:mrping/screens/playerstatspage.dart';
-import '../db/mainDB.dart';
+import 'package:provider/provider.dart';
 import '../db/player.dart';
 
 
@@ -12,23 +13,18 @@ class Leaderboard extends StatefulWidget {
 }
 
 class _LeaderboardState extends State<Leaderboard> {
-    late List<Player> players = [];
     int nextID = 1;
     int myIndex = 0;
 
     @override
     void initState(){
       super.initState();
-      refreshPlayers();
     }
 
-    Future refreshPlayers() async {
-      players = await mainDB.instance.readAllPlayerInfo();
-      players.sort((a,b) => b.rating!.compareTo(a.rating as num));
-      setState(() {}); 
-    }
   @override
   Widget build(BuildContext context) {
+    List<Player> players = Provider.of<DatabaseInfo>(context).players;
+    players.sort((a,b) => b.rating!.compareTo(a.rating as num));
     return Center(
       child: Column(
         children: <Widget>[

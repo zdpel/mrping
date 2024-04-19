@@ -168,6 +168,7 @@ class _AddGameState extends State<AddGame> {
     Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore, ratingChange: ratingChange);
     await mainDB.instance.createGame(newGame);
     Provider.of<DatabaseInfo>(context, listen: false).getGames();
+    Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
   }
 
   double _calculateExpectedOutcome(int playerRating, int opponentRating) {

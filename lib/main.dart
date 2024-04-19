@@ -19,9 +19,15 @@ void main() {
 
 class DatabaseInfo extends ChangeNotifier {
   List<Game> games = [];
+  List<Player> players = [];
 
   void getGames() async {
     games = await mainDB.instance.readAllGameInfo();
+    notifyListeners();
+  }
+
+  void getPlayers() async {
+    players = await mainDB.instance.readAllPlayerInfo();
     notifyListeners();
   }
 }
@@ -44,6 +50,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DatabaseInfo>(context, listen: false).getGames();
+      Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
     });
   }
 

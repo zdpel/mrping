@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mrping/main.dart';
 import 'package:mrping/screens/adminpin.dart';
+import 'package:provider/provider.dart';
 import '../db/mainDB.dart';
 import '../db/player.dart';
 
@@ -103,6 +104,7 @@ class _AddPlayerState extends State<AddPlayer> {
       //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING
       Player newPlayer = Player(name: name, wins: 2, losses: 2, rating: rating);
       await mainDB.instance.createPlayer(newPlayer);
+      Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
     }
     return AlertDialog(
       title: const Text('Enter Player Details'),
