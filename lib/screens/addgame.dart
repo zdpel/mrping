@@ -162,13 +162,15 @@ class _AddGameState extends State<AddGame> {
     return validPlayerOneName && validPlayerTwoName && validScore;
   }
 
-  void _addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
+  Future<bool> _addGame(String playerOne, int playerOneScore, String playerTwo, int playerTwoScore) async {
     int ratingChange = await _updatePlayerRatings();
 
     Game newGame = Game(playerOne: playerOne, playerOneScore: playerOneScore, playerTwo: playerTwo, playerTwoScore: playerTwoScore, ratingChange: ratingChange.abs());
     await mainDB.instance.createGame(newGame);
+
     Provider.of<DatabaseInfo>(context, listen: false).getGames();
     Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
+    return true;
   }
 
   double _calculateExpectedOutcome(int playerRating, int opponentRating) {
@@ -392,9 +394,9 @@ class _AddGameState extends State<AddGame> {
       ),
       actions: <Widget>[
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if(_validInput()) {
-              _addGame(playerOne, playerOneScore!, playerTwo, playerTwoScore!);
+              await _addGame(playerOne, playerOneScore!, playerTwo, playerTwoScore!);
 
               Navigator.of(context).pop();
             }

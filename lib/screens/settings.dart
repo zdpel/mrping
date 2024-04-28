@@ -102,7 +102,7 @@ class _AddPlayerState extends State<AddPlayer> {
   Widget build(BuildContext context) {
     void addPlayer(String name, int rating) async {
       //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING
-      Player newPlayer = Player(name: name, wins: 0, losses: 0, rating: rating, pf: 0, pa: 0, skunks: 0, skunked: 0);
+      Player newPlayer = Player(name: name, wins: 0, losses: 0, rating: 500, pf: 0, pa: 0, skunks: 0, skunked: 0);
       await mainDB.instance.createPlayer(newPlayer);
       Provider.of<DatabaseInfo>(context, listen: false).getPlayers();
     }
@@ -128,11 +128,11 @@ class _AddPlayerState extends State<AddPlayer> {
             ],
           ),
           //DEFAULT RATING MUST BE SET. RATING OPTION ONLY GIVEN FOR TESTING. REMOVE LATER
-          TextField(
-            controller: _ratingController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Rating'),
-          ),
+          // TextField(
+          //   controller: _ratingController,
+          //   keyboardType: TextInputType.number,
+          //   decoration: const InputDecoration(labelText: 'Rating'),
+          // ),
         ],
       ),
       actions: <Widget>[
